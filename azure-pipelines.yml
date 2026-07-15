@@ -7,7 +7,7 @@ pool:
 variables:
   # These link directly to the infrastructure variables we set up
   azureServiceConnection: 'azure-resource-manager-service-connection'
-  subscriptionId: 'YOUR_SUBSCRIPTION_ID_WILL_GO_HERE'
+  subscriptionId: '2f746031-d747-4853-9a47-46f15c87960c'
   resourceGroup: 'rg-devops-project'
   acrName: 'acrdevopsprojectstudent2026'
   aksName: 'aks-production-cluster'
