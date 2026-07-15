@@ -1,0 +1,48 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # These link directly to the infrastructure variables we set up
+  azureServiceConnection: 'azure-resource-manager-service-connection'
+  subscriptionId: 'YOUR_SUBSCRIPTION_ID_WILL_GO_HERE'
+  resourceGroup: 'rg-devops-project'
+  acrName: 'acrdevopsprojectstudent2026'
+  aksName: 'aks-production-cluster'
+  imageRepository: 'user-management-api'
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: Infrastructure
+  displayName: 'Deploy Azure Infrastructure'
+  jobs:
+  - job: Terraform
+    steps:
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: 'latest'
+    
+    - script: |
+        cd terraform
+        terraform init
+        terraform apply -auto-approve
+      displayName: 'Terraform Init and Apply'
+
+- stage: BuildAndPush
+  displayName: 'Build and Push Docker Image'
+  dependsOn: Infrastructure
+  jobs:
+  - job: Build
+    steps:
+    - task: Docker@2
+      displayName: 'Build and Push Image to ACR'
+      inputs:
+        command: 'buildAndPush'
+        containerRegistry: '$(azureServiceConnection)'
+        repository: '$(imageRepository)'
+        dockerfile: 'docker/Dockerfile'
+        tags: |
+          $(tag)
+          latest
